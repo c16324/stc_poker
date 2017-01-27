@@ -20,20 +20,25 @@ public class Apoker {
     public static void main(String[] args){
         Scanner stdIn = new Scanner(System.in);
         
-        humanPlayer = new HumanPlayer("プレーヤ",100);
-        computerPlayer = new ComputerPlayer("コンピュータ",100);
+        humanPlayer = new HumanPlayer("プレーヤ",1000);
+        computerPlayer = new ComputerPlayer("コンピュータ",1000);
         pokerRule = new PokerRule(); 
         table = new Table();
-        
+        int coin=0;
         while(true){
             cards = Cards.newCards();//新しいトランプを準備
             cards.shuffle();//トランプをシャッフル
             dealCards();//プレーヤにカードを配る
             
-            
-            
-            System.out.println("\nコインをいくらベットしますか？\n手持ちのコイン:"+humanPlayer.getCoins());
-            int coin = stdIn.nextInt();
+            //コインをベットする。ベットされたコインが１コイン以上じゃなかったらもう１度ベットし直す。
+            while(true){
+            System.out.println("コインをいくらベットしますか？\n手持ちのコイン:"+humanPlayer.getCoins());
+            coin = stdIn.nextInt();
+            if(coin<=0)
+                System.out.println("１コイン以上ベットしてください。");
+            else
+                break;
+            }
             
             table.setBetCoins(coin);
             humanPlayer.bet(coin);
@@ -62,6 +67,7 @@ public class Apoker {
             computerPlayer.setResult(pokerRule.check(computerPlayer.getHand()));
             
             //CPUと比較して勝敗を決める。
+            //getResultで返ってくる数値が低いほど強い役。
             if(humanPlayer.getResult() < computerPlayer.getResult()){
                 System.out.println("あなたの勝ち!\n"+table.getBetCoins()+"コイン獲得しました。");
                 humanPlayer.setCoins(table.getBetCoins());
@@ -74,9 +80,15 @@ public class Apoker {
                 computerPlayer.setCoins(table.getBetCoins());
                 table.rewardCoins();
             }
-            
+            if(humanPlayer.getCoins()==0){
+                System.out.print("所持金が０です!");
+                break;
+            }
             
             System.out.println("continue(Y/n)?");   String yesno = stdIn.next();
+            //次のゲームを始めるために手札をリフレッシュ
+            deleateHand();
+            
             if(yesno.equals("n"))break;
         }
     }
@@ -98,8 +110,9 @@ public class Apoker {
         int n=0;
         boolean flag = true;
         while(flag == true){
-        System.out.println("何番目のカードを入れ替えますか？"); 
+        System.out.println("何番目のカードを入れ替えますか？  入れ替えずに勝負(0)"); 
         int no = stdIn.nextInt();
+        if(no==0)break;
         humanPlayer.drawOut(no-1);
         humanPlayer.displayHand();
         n++;
@@ -109,6 +122,13 @@ public class Apoker {
         }
         for(int i=0;i<n;i++)
             humanPlayer.drawIn(cards.pop());
+    }
+    
+    static void deleateHand(){
+        for(int i=0;i<5;i++){
+        humanPlayer.drawOut(0);
+        computerPlayer.drawOut(0);
+        }
     }
    
 }

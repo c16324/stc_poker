@@ -42,7 +42,7 @@ public class Player {
     public void setCoins(int num){
         this.coins = num;
     }
-    
+    /*コインをGET*/
     public int getCoins(){
         return coins;
     }
